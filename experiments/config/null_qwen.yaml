@@ -1,0 +1,10 @@
+experiments_name: null_input_qwen_0.6b
+model_type: llm # llm, rerank
+model_size: 0.6b
+model_name: Qwen/Qwen3-0.6B
+process_granularity: setence # setence, paragraph, page, document
+dump_list:
+  - attn_weight
+  - logits
+  
+ 

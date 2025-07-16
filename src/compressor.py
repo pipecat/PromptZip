@@ -5,6 +5,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List, Union
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from vllm import LLM, SamplingParams
 
 class BaseCompressor(ABC):
     def __init__(self, name: str = "BaseCompressor"):
@@ -35,7 +36,7 @@ class QwenCompressor(BaseCompressor):
     def load_model(self, model_name):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(model_name)
-        self.model.to(torch.device("mps"))
+        self.model.to(torch.device("cuda"))
         
     def compress(self, prompt) -> str:
         prompt = prompt + "\n" + "请将以上内容复述一遍：\n\n"
@@ -48,3 +49,28 @@ class QwenCompressor(BaseCompressor):
             do_sample=True,
         )
         return self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
+
+class QwenVLLMCompressor(BaseCompressor):
+    def __init__(self, name="QwenCompressor"):
+        super().__init__(name)
+        self.llm = None  # 用于保存vLLM模型实例
+
+    def load_model(self, model_name):
+        # vLLM 自动选择设备并优化加载
+        self.llm = LLM(model=model_name)
+
+    def compress(self, prompt) -> str:
+        prompt += "\n请将以上内容复述一遍：\n\n"
+
+        # 设置采样参数
+        sampling_params = SamplingParams(
+            temperature=0.7,
+            top_p=0.7,
+            max_tokens=1024,
+        )
+
+        # 使用 vLLM 推理
+        outputs = self.llm.generate([prompt], sampling_params)
+
+        # outputs 是列表，每个元素是一个 RequestOutput
+        return outputs[0].outputs[0].text

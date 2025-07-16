@@ -1,4 +1,4 @@
-from compressor import QwenCompressor
+from compressor import QwenCompressor, QwenVLLMCompressor
 
 PROMPT = """
 马自达（Mazda），全称马自达株式会社（日文：マツダ株式会社，英文：Mazda Motor Corporation），是一家在东京证交所（TYO）上市的日本跨国汽车制造商，2020年度《财富》世界五百强排名第400位。 [1-3]。
@@ -12,6 +12,15 @@ PROMPT = """
 
 if __name__ == "__main__":
     compressor = QwenCompressor()
-    compressor.load_model("Qwen/Qwen3-0.6B")
+    compressor.load_model("Qwen/Qwen3-1.7B")
     compressed_prompt = compressor.compress(PROMPT)
+    print(PROMPT)
+    print("====================================")
     print(compressed_prompt)
+    print("====================================")
+    vllm_compressor = QwenVLLMCompressor()
+    vllm_compressor.load_model("Qwen/Qwen3-1.7B")
+    compressed_prompt_vllm = vllm_compressor.compress(PROMPT)
+    print(PROMPT)
+    print("====================================")
+    print(compressed_prompt_vllm)

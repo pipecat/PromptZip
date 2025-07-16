@@ -1,3 +1,18 @@
 longbench:
   metric:
+    - rouge
+    - qa_f1
     - 
+gsm8k:
+  metric:
+
+ShareGPT:
+  id: RyokoAI/ShareGPT52K
+  metric:
+
+babilong:
+  metric:
+    - EM
+    - LLM judge
+ClongEval:
+  metric:
